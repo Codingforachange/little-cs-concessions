@@ -1,0 +1,21 @@
+html {
+    scroll-behavior: smooth;
+}
+
+section {
+    scroll-margin-top: 70px;
+}
+
+:root {
+    --concession-yellow: #FDE06D; /* The Light Truck Yellow*/
+    --concession-red: #A3262A; /* Logo Red*/
+    --concession-navy: #1B2B3A; /* Veteran Sheild Blue*/
+    --concession-white:#FFFFFF;
+}
+
+body {
+    margin: 0;
+    background-color: #fdfdfd;
+    font-family: 'Arial', sans-serif;
+    color: var(--concession-navy);
+}

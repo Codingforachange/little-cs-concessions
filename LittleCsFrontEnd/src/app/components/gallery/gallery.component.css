@@ -1,0 +1,16 @@
+.gallery-img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.gallery-img:hover {
+    transform: scale(1.05);
+}
+
+.border-dashed {
+    border-style: dashed !important;
+    background-color: #f8f9fa;
+}

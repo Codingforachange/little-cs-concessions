@@ -1,0 +1,19 @@
+.hero-container {
+    height: 80vh;
+    background: url('/assets/hero-truck.jpg') no-repeat center center;
+    background-size: cover;
+    position: relative;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Darkens the photo so the white text pops a little */
+}
+
+.content {
+    z-index: 2;
+}

@@ -1,0 +1,57 @@
+<section id="reviews" class="py-5" style="background-color: var(--concession-cream);">
+  <div class="container text-center">
+    <h2 class="fw-bold mb-5" style="color: var(--concession-navy);">WHAT PEOPLE ARE SAYING</h2>
+
+    <div class="row justify-content-center mb-5">
+      <div *ngFor="let review of reviews" class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-0 rounded-4 p-4">
+          <div class="card-body">
+            <div class="text-warning mb-3">
+              <span *ngFor="let star of getStars(review.rating)">★</span>
+            </div>
+            
+            <p class="card-text fst-italic">"{{ review.comment }}"</p>
+            <hr class="w-25 mx-auto">
+            <h5 class="fw-bold mb-0">— {{ review.customer }}</h5>
+            <small class="text-muted">{{ review.location }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container mt-5 pt-5 border-top">
+      <div class="row justify-content-center">
+        <div class="col-md-6 text-start shadow-sm p-4 bg-white rounded-4">
+          <h4 class="fw-bold mb-3" style="color: var(--concession-navy);">Leave a Review</h4>
+          
+          <form (submit)="onSubmit()">
+            <div class="mb-3">
+              <label class="form-label">Your Name</label>
+              <input type="text" name="customer" [(ngModel)]="newReview.customer" class="form-control" placeholder="Enter your name" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Rating (1-5)</label>
+              <select name="rating" [(ngModel)]="newReview.rating" class="form-select">
+                <option [value]="5">5 Stars - Amazing!</option>
+                <option [value]="4">4 Stars - Great</option>
+                <option [value]="3">3 Stars - Good</option>
+                <option [value]="2">2 Stars - OK</option>
+                <option [value]="1">1 Star - Poor</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Comment</label>
+              <textarea name="comment" [(ngModel)]="newReview.comment" class="form-control" rows="3" placeholder="Tell us about your experience!" required></textarea>
+            </div>
+
+            <button type="submit" class="btn fw-bold w-100" style="background-color: var(--concession-yellow); color: var(--concession-navy);">
+              POST REVIEW
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
