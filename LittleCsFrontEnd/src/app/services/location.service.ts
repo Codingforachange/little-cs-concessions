@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LocationService {
   // Points to your local Python backend route
-  private apiUrl = 'http://localhost:8000/api/locations';
+  private apiUrl = `${environment.apiUrl}/locations`;
 
   constructor(private http: HttpClient) { }
 

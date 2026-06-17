@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { routes } from '../app.routes';
+import { environment } from '../environments';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MenuService {
-  private apiUrl = 'http://localhost:8000/api/menu';
+  private apiUrl = `${environment.apiUrl}/menu`;
 
   constructor(private http: HttpClient) { }
 
