@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class EventService {
-  private apiUrl = 'https://little-cs-concessions.onrender.com/api/events';
+  private apiUrl = 'http://localhost:8000/api/events';
   constructor(private http: HttpClient) { }
   getEvents(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
@@ -14,7 +14,7 @@ export class EventService {
   postEvents(event: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, event);
   }
-  deleteEvent(title: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${title}`);
+  deleteEvent(id: number): Observable<any> {
+    return this.http.delete<any>(`http://localhost:8000/api/events/${id}`);
   }
 }

@@ -1,69 +1,129 @@
-<div class="container py-5 mt-5">
-  <div *ngIf="!isLoggedIn" class="row justify-content-center">
-    <div class="col-md-4 text-center">
-      <h2 class="fw-bold mb-4">Admin Login</h2>
-      <input type="password" [(ngModel)]="password" class="form-control mb-3" placeholder="Enter Password">
-      <button (click)="login()" class="btn btn-danger w-100">Login</button>
-    </div>
-  </div>
-
-  <div *ngIf="isLoggedIn">
-    <h2 class="fw-bold mb-4 text-danger">Truck Management Dashboard</h2>
-    
-    <div class="card p-4 shadow-sm mb-5">
-      <h4 class="mb-4 text-primary">Add New Event</h4>
-      <form (submit)="addEvent()">
-        <div class="row mb-3">
-          <div class="col-md-2"><label>Day</label><input type="number" name="day" [(ngModel)]="newEvent.day" class="form-control" required></div>
-          <div class="col-md-3"><label>Month</label><input type="text" name="month" [(ngModel)]="newEvent.month" class="form-control" required></div>
-          <div class="col-md-2"><label>Year</label><input type="number" name="year" [(ngModel)]="newEvent.year" class="form-control" required></div>
-          <div class="col-md-5"><label>Event Title</label><input type="text" name="title" [(ngModel)]="newEvent.title" class="form-control" placeholder="e.g. Grand Reopening" required></div>
+<div class="container py-5">
+    <!-- LOGIN CARD -->
+    <div *ngIf="!isLoggedIn" class="row justify-content-center">
+        <div class="col-md-4 text-center card p-4 shadow-sm">
+            <h2 class="mb-4">Little C's Admin</h2>
+            <input type="password" [(ngModel)]="password" class="form-control mb-3" placeholder="Password">
+            <button (click)="login()" class="btn btn-danger w-100">Login</button>
         </div>
-
-        <div class="row mb-3">
-          <div class="col-md-6"><label>Location Name</label><input type="text" name="loc" [(ngModel)]="newEvent.location" class="form-control" placeholder="e.g. Memorial Park" required></div>
-          <div class="col-md-6"><label>Start Time</label><input type="text" name="time" [(ngModel)]="newEvent.startTime" class="form-control" placeholder="e.g. 11:00 AM" required></div>
-        </div>
-
-        <div class="mb-4"><label>Full Address (For the Map)</label><input type="text" name="addr" [(ngModel)]="newEvent.address" class="form-control" placeholder="123 Street St, New Kensington, PA" required></div>
-
-        <button type="submit" class="btn btn-success px-5">Save Event to Website</button>
-      </form>
     </div>
 
-    <hr class="my-5">
+    <!-- MAIN DASHBOARD -->
+    <div *ngIf="isLoggedIn">
+        <h2 class="text-danger fw-bold mb-5">Truck Management Dashboard</h2>
 
-    <div class="card p-4 shadow-sm">
-      <h4 class="mb-4 text-primary">Manage Existing Events</h4>
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead class="table-dark">
-            <tr>
-              <th>Date</th>
-              <th>Title</th>
-              <th>Location</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let event of allEvents">
-              <td>{{event.month}} {{event.day}}</td>
-              <td>{{event.title}}</td>
-              <td>{{event.location}}</td>
-              <td>
-                <button (click)="onDelete(event.title)" class="btn btn-sm btn-outline-danger">Delete</button>
-              </td>
-            </tr>
-            <tr *ngIf="allEvents.length === 0">
-              <td colspan="4" class="text-center text-muted">No upcoming events scheduled.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <hr class="my-5">
-      <div class="card p-4 shadow-sm">
-        <h4 class="mb-4 text-primary">Manage Customer Reviews</h4>
-        <div>
+        <!-- SECTION 1: ADD NEW MENU ITEM (Your New Local Feature) -->
+        <div class="card p-4 shadow-sm mb-5">
+            <h4 class="text-primary mb-3">Add Menu Item</h4>
+            <div class="row g-2 mb-4">
+                <div class="col-md-5">
+                    <input type="text" [(ngModel)]="newMenuItem.name" class="form-control" placeholder="Item Name">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" [(ngModel)]="newMenuItem.price" class="form-control" placeholder="Price">
+                </div>
+                <div class="col-md-4">
+                    <button (click)="addMenuItem()" class="btn btn-success w-100">Add to Menu</button>
+                </div>
+            </div>
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of allMenuItems">
+                        <td>{{item.name}}</td>
+                        <td>${{item.price}}</td>
+                        <td>
+                            <button (click)="onDeleteItem(item.id)" class="btn btn-sm btn-outline-danger">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SECTION 2: ADD NEW EVENT (Restored from GitHub) -->
+        <div class="card p-4 shadow-sm mb-5">
+            <h4 class="text-primary mb-4">Add New Event</h4>
+            <form (submit)="addEvent()">
+                <div class="row mb-3">
+                    <div class="col-md-2">
+                        <label class="input-group-text">Day</label>
+                        <input type="number" name="day" [(ngModel)]="newEvent.day" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="input-group-text">Month</label>
+                        <input type="text" name="month" [(ngModel)]="newEvent.month" class="form-control" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="input-group-text">Year</label>
+                        <input type="number" name="year" [(ngModel)]="newEvent.year" class="form-control" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="input-group-text">Event Title</label>
+                        <input type="text" name="title" [(ngModel)]="newEvent.title" class="form-control" placeholder="e.g. Grand Reopening" required>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="input-group-text">Location Name</label>
+                        <input type="text" name="loc" [(ngModel)]="newEvent.location" class="form-control" placeholder="e.g. Memorial Park" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="input-group-text">Start Time</label>
+                        <input type="text" name="time" [(ngModel)]="newEvent.startTime" class="form-control" placeholder="e.g. 11:00 AM" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="input-group-text">Full Address (For the Map)</label>
+                    <input type="text" name="addr" [(ngModel)]="newEvent.address" class="form-control" placeholder="123 Street St, New Kensington, PA" required>
+                </div>
+
+                <button type="submit" class="btn btn-success px-5">Save Event to Website</button>
+            </form>
+        </div>
+
+        <hr class="my-5">
+
+        <!-- SECTION 3: MANAGE EXISTING EVENTS (Restored from GitHub) -->
+        <div class="card p-4 shadow-sm mb-5">
+            <h4 class="text-primary mb-4">Manage Existing Events</h4>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Title</th>
+                            <th>Location</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let event of allEvents">
+                            <td>{{event.month}} {{event.day}}</td>
+                            <td>{{event.title}}</td>
+                            <td>{{event.location}}</td>
+                            <td>
+                                <button (click)="onDeleteEvent(event.title)" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="allEvents.length === 0">
+                            <td colspan="4" class="text-center text-muted">No upcoming events scheduled.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION 4: CUSTOMER REVIEWS (Restored & Unified) -->
+        <div class="card p-4 shadow-sm">
+            <h4 class="text-primary mb-3">Customer Reviews</h4>
             <table class="table table-hover">
                 <thead class="table-dark">
                     <tr>
@@ -74,21 +134,20 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let review of allReviews">
-                        <td>{{review.customer}}</td>
-                        <td>{{review.rating}} </td>
-                        <td>{{review.comment}}</td>
+                    <tr *ngFor="let r of allReviews">
+                        <td>{{r.customer_name}}</td>
+                        <td>{{r.rating}}</td>
+                        <td>{{r.comment}}</td>
                         <td>
-                            <button (click)="onDeleteReview(review.customer)" class="btn btn-sm btn-outline-danger">Delete</button>
+                            <button (click)="onDeleteReview(r.id)" class="btn btn-sm btn-outline-danger">Delete</button>
                         </td>
                     </tr>
                     <tr *ngIf="allReviews.length === 0">
-                        <td colspan="4" class="text-center text-muted">No reviews yet</td>
+                        <td colspan="4" class="text-center text-muted">No reviews yet.</td>
                     </tr>
                 </tbody>
             </table>
         </div>
-      </div>
+
     </div>
-  </div>
 </div>

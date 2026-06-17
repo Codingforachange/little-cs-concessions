@@ -1,8 +1,8 @@
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import json
-import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 app = FastAPI()
 
@@ -16,88 +16,160 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Database Connection Helper
+def get_db_connection():
+    return psycopg2.connect(
+        dbname="little_cs_concessions",
+        user="postgres",
+        password="haley413", # Replace with your actual pgAdmin password
+        host="localhost",
+        port="5432",
+        cursor_factory=RealDictCursor
+    )
+
 # 2. THE PREFLIGHT HANDLER
 # Manually answers the browser's "Is it safe to send data?" question
 @app.options("/{rest_of_path:path}")
 async def preflight_handler(request: Request, rest_of_path: str):
     response = Response()
     response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+    response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, DELETE"
     response.headers["Access-Control-Allow-Headers"] = "*"
     return response
 
 # 3. DATA MODELS (The Blueprints)
 class Event(BaseModel):
-    day: int
-    month: str
-    year: int
-    title: str
-    startTime: str
-    location: str
-    address: str
+    location_id: int
+    event_date: str
+    start_time: str
+    end_time: str
+    notes: str
 
 class Review(BaseModel):
-    customer: str
+    customer_name: str
     rating: int
     comment: str
-    location: str
+
+class MenuItem(BaseModel):
+    name: str
+    category: str
+    price: float
 
 # 4. ROUTES (The Endpoints)
 
-# --- GET: Fetch all events ---
+# --- GET: Fetch all events joined with location data for the map ---
 @app.get("/api/events")
 def get_events():
-    if os.path.exists("events.json"):
-        with open("events.json", "r") as f:
-            return json.load(f)
-    return []
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT s.id, l.name as location, l.address, l.city, s.event_date, s.start_time, s.end_time, s.notes
+        FROM schedule s
+        JOIN locations l ON s.location_id = l.id
+        ORDER BY s.event_date ASC
+    """)
+    events = cur.fetchall()
+    cur.close()
+    conn.close()
+    return events
 
 # --- GET: Fetch all reviews ---
 @app.get("/api/reviews")
 def get_reviews():
-    if os.path.exists("reviews.json"):
-        with open("reviews.json", "r") as f:
-            return json.load(f)
-    return []
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM reviews ORDER BY review_date DESC")
+    reviews = cur.fetchall()
+    cur.close()
+    conn.close()
+    return reviews
 
-# --- POST: Save a new review ---
+# --- POST: Save a new review to the database ---
 @app.post("/api/reviews")
 async def add_review(review: Review):
-    reviews = get_reviews()
-    # Puts the newest review at the top of the list
-    reviews.insert(0, review.model_dump())
-    with open("reviews.json", "w") as f:
-        json.dump(reviews, f, indent=4)
-    return {"message": "Review saved!"}
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO reviews (customer_name, rating, comment) VALUES (%s, %s, %s)",
+        (review.customer_name, review.rating, review.comment)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message": "Review saved to database!"}
 
-# --- POST: Save a new event (The Admin Dashboard Logic) ---
-@app.post("/api/events")
-async def add_event(event: Event):
-    events = get_events()
-    events.append(event.model_dump())
-    with open("events.json", "w") as f:
-        json.dump(events, f, indent=4)
-    return {"message": "Event added successfully!"}
+# --- DELETE: Remove an event (Admin Logic) ---
+@app.delete("/api/events/{event_id}")
+async def delete_event(event_id: int):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM schedule WHERE id = %s", (event_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message": f"Event {event_id} deleted"}
 
-@app.delete("/api/events/{title}")
-async def delete_event(title: str):
-    events = get_events()
-    #Create new list excluding the one we want to delete
-    updated_events = [e for e in events if e['title'] != title]
+# --- Delete: Remove a review ---
+@app.delete("/api/reviews/{review_id}")
+def delete_review(review_id: int):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM reviews WHERE id = %s", (review_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message": "Review deleted"}
 
-    with open("events.json", "w") as f:
-        json.dump(updated_events, f, indent=4)
-    return {"message": f"Event '{title}' deleted"}
+# Fetch menu items
+@app.get("/api/menu")
+def get_menu():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM menu_items WHERE is_available = true")
+    menu = cur.fetchall()
+    cur.close()
+    conn.close()
+    return menu
 
-@app.delete("/api/reviews/{customer}")
-async def delete_review(customer: str):
-    reviews = get_reviews()
-    # Keep everything Execpt the one we want to delete
-    updated_reviews = [r for r in reviews if r['customer'] != customer]
+# Post add new item to the menu
+@app.post("/api/menu")
+async def add_menu_item(item: MenuItem):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO menu_items (name, category, price, is_available) VALUES(%s, %s, %s, true)",
+    (item.name, item.category, item.price)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return{"message": "Menu item added successfully!"}
 
-    with open ("reviews.json", "w") as f:
-        json.dump(updated_reviews, f, indent=4)
-    return {"message": f"Review from {customer} deleted"}
+# Delete item from menu
+@app.delete("/api/menu/{item_id}")
+async def delete_menu_item(item_id: int):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM menu_items WHERE id = %s", (item_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message": "Menu item deleted successfully!"}
+
+@app.get("/api/locations")
+def get_locations():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    # Fetch todays scheduled location
+    cur.execute("""
+                SELECT l.name, l.address, l.city, l.latitude, l.longitude, s.start_time, s.end_time
+                FROM locations l
+                JOIN schedule s ON l.id = s.location_id
+                WHERE s.event_date = CURRENT_DATE
+""")
+    location = cur.fetchone()
+    cur.close()
+    conn.close()
+    return location if location else {"message": "No events scheduled for today"}
 
 # 5. THE START BLOCK (Always at the very bottom)
 if __name__ == "__main__":

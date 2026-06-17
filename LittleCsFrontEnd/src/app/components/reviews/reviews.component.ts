@@ -15,7 +15,7 @@ export class ReviewsComponent {
 
    // Binding variables for the form
    newReview = {
-    customer: '',
+    customer_name: '',
     rating: 5,
     comment: '',
     location: 'New Kensington, PA'
@@ -37,7 +37,7 @@ export class ReviewsComponent {
     this.reviewService.postReview(this.newReview).subscribe(() => {
       this.loadReviews(); // Refresh the list
       // Reset the form
-      this.newReview = { customer: '', rating: 5, comment: '', location: 'New Kensington, PA'};
+      this.newReview = { customer_name: '', rating: 5, comment: '', location: 'New Kensington, PA'};
     });
    }
 
@@ -57,7 +57,7 @@ export class ReviewsComponent {
 
     //Creae a new review object
     const newReview = {
-      customer: nameInput.value,
+      customer_name: nameInput.value,
       rating: parseInt(ratingInput.value),
       comment: commentInput.value,
       location: 'Verified Customer'

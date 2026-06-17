@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ReviewService {
-  private apiUrl = 'https://little-cs-concessions.onrender.com/api/reviews';
+  private apiUrl = 'http://localhost:8000/api/reviews';
 
   constructor(private http: HttpClient) {}
 
