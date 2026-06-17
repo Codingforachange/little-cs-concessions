@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -18,14 +19,19 @@ app.add_middleware(
 
 # Database Connection Helper
 def get_db_connection():
-    return psycopg2.connect(
-        dbname="little_cs_concessions",
-        user="postgres",
-        password="haley413", # Replace with your actual pgAdmin password
-        host="localhost",
-        port="5432",
-        cursor_factory=RealDictCursor
-    )
+    database_url = os.environ.get("DATABASE_URL")
+
+    if database_url:
+        return psycopg2.connect(database_url, cursor_factory=RealDictCursor)
+    else:
+        return psycopg2.connect(
+            dbname="little_cs_concessions",
+            user="postgres",
+            password="haley413", # Replace with your actual pgAdmin password
+            host="localhost",
+            port="5432",
+            cursor_factory=RealDictCursor
+        )
 
 # 2. THE PREFLIGHT HANDLER
 # Manually answers the browser's "Is it safe to send data?" question
