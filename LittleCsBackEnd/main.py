@@ -9,9 +9,14 @@ app = FastAPI()
 
 # 1. PERMISSION SLIP (CORS Middleware)
 # This allows your Angular app (port 4200) to talk to this Python server (port 8000)
+origins = [
+    "http://localhost:4200",
+    "https://little-cs-concessions.netlify.app"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
